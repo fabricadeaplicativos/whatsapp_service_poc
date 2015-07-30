@@ -28,6 +28,21 @@ var express = require('express');
 // _____ Lógica principal da manipulação de filas _____
 
 var _queues = {} // Mapa 'client' -> 'queue';
+var _contacts = []; // Conjunto de users
+
+// Contacts manipulation
+
+function CreateContact(user){
+    _contacts.push(user);
+};
+
+function DeleteContact(user){
+    delete _contacts[user];
+};
+
+function GetContacts(){
+    return _contacts;
+}
 
 // Função para emular um defaultdict(list)
 function GetQueue(client) { 
@@ -72,14 +87,19 @@ PORT = 5555;
 
 // Get, consulta se o usuário tem mensagens
 app.get('/:id', function (req, res) {
+    messages = [];
     user_id = req.params.id;
     message = GetUnreadMessage(user_id);
-    if (message != undefined) {
+    while (message){
         console.log("message read from " + user_id + ": " + message);
-        res.send( message );
-    } else {
-        res.status(404).send();
+        messages.push(message);
+        message = GetUnreadMessage(user_id);
     }
+    //if (message != undefined) {
+        res.send( messages );
+    //} else {
+    //    res.status(404).send();
+    //}
 });
 
 // Post, manda mensagem para o usuário
@@ -97,6 +117,23 @@ app.post('/:id', function (req, res) {
         EnqueueMessageToClient(message, user_id);
         res.send('OK');
     });    
+});
+
+// GET - Receber lista de contatos
+app.get('/contact/', function(req, res){
+    res.send(GetContacts()) // Todo: Colocar os links tratados
+});
+
+// POST - Registra novo contato
+app.post('/contact/:id', function(req, res){
+    CreateContact(req.params.id);
+    res.send('OK') // Todo: Colocar os links tratados
+});
+
+// DELETE - Remove contato da lista
+app.delete('/contact/:id', function(req, res){
+    DeleteContact(req.params.id);
+    res.send('OK') // Todo: Colocar os links tratados
 });
 
 // _____ Push Loop _____
