@@ -95,6 +95,14 @@ var express = require('express');
 var app = express();
 PORT = 5555;
 
+// Config. do CORS
+app.configure(function(){
+  app.use(function(req, res, next) {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    return next();
+  });
+});
+
 // Get, consulta se o usuário tem mensagens. Note que as mensagens contém as informações de sala e remetente.
 app.get('/read/:user', function (req, res) {
     user_id = req.params.user;
@@ -127,6 +135,8 @@ app.post('/send/:room/:user', function (req, res) {
 app.get('/rooms/', function(req, res){
 	res.send(GetRooms()) // Todo: Colocar os links tratados
 });
+
+
 
 
 // _____ Principal _____
