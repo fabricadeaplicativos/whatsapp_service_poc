@@ -86,7 +86,8 @@ var app = express();
 PORT = 5555;
 
 // Get, consulta se o usuário tem mensagens
-app.get('/:id', function (req, res) {
+app.get('/message/:id', function (req, res) {
+    res.setHeader("Access-Control-Allow-Origin", "*");
     messages = [];
     user_id = req.params.id;
     message = GetUnreadMessage(user_id);
@@ -103,7 +104,8 @@ app.get('/:id', function (req, res) {
 });
 
 // Post, manda mensagem para o usuário
-app.post('/:id', function (req, res) {
+app.post('/message/:id', function (req, res) {
+    res.setHeader("Access-Control-Allow-Origin", "*");
     user_id = req.params.id;
 
     // http://blog.frankgrimm.net/2010/11/howto-access-http-message-body-post-data-in-node-js/
@@ -120,18 +122,29 @@ app.post('/:id', function (req, res) {
 });
 
 // GET - Receber lista de contatos
-app.get('/contact/', function(req, res){
+app.get('/contact', function(req, res){
+    res.setHeader("Access-Control-Allow-Origin", "*");
     res.send(GetContacts()) // Todo: Colocar os links tratados
 });
 
 // POST - Registra novo contato
-app.post('/contact/:id', function(req, res){
-    CreateContact(req.params.id);
-    res.send('OK') // Todo: Colocar os links tratados
+app.post('/contact', function(req, res){
+    message = ""
+    req.on('data', function(chunk) {
+        message += chunk.toString();
+    });
+
+    req.on('end', function() {
+        console.log("novo contato: " + message);
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        CreateContact(message);
+        res.send('OK') // Todo: Colocar os links tratados
+    }); 
 });
 
 // DELETE - Remove contato da lista
 app.delete('/contact/:id', function(req, res){
+    res.setHeader("Access-Control-Allow-Origin", "*");
     DeleteContact(req.params.id);
     res.send('OK') // Todo: Colocar os links tratados
 });
